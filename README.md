@@ -18,6 +18,8 @@ Each image defaults to its own launcher, and the launcher searches `/opt/omron/e
 
 For MobilePlanner, the first run may open the installer from `exe/`. After installation completes, later runs launch the installed application from the persistent Wine prefix automatically.
 
+For TMFlow, the first run may open either `TMFlow*.exe` or `TMSetup*.exe`, depending on what was packaged into the image. Before that happens, the launcher bootstraps `.NET Framework 4.8` into the persistent Wine prefix because TMFlow requires `.NET Framework 4.5.2` or newer. After installation completes, later runs launch the installed `TMFlow.exe` from the persistent Wine prefix automatically.
+
 ## Run With Compose
 
 The compose files are runtime-only and pull the published GHCR images. They do not build local images.
@@ -48,6 +50,15 @@ If you need to reset MobilePlanner and rerun the installer from scratch, remove 
 docker compose -f compose.mobileplanner.yaml down
 docker volume rm omron_win_software_mobileplanner-wine
 ```
+
+To reset TMFlow and rerun its installer from scratch:
+
+```sh
+docker compose -f compose.tmflow.yaml down
+docker volume rm omron_win_software_tmflow-wine
+```
+
+If TMFlow was started before the .NET bootstrap was added, reset the TMFlow Wine volume once so the prefix can be recreated cleanly with the required runtime.
 
 ## TMFlow Source
 

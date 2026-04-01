@@ -3,6 +3,7 @@ FROM ubuntu:24.04
 ARG TMFLOW_URL=""
 
 ENV DEBIAN_FRONTEND=noninteractive \
+    WINEARCH=win32 \
     WINEPREFIX=/wine \
     WINEDEBUG=-all \
     WINEDLLOVERRIDES=mscoree,mshtml=
@@ -17,6 +18,7 @@ RUN dpkg --add-architecture i386 \
     unzip \
     wine32 \
     wine64 \
+    winetricks \
     winbind \
     xauth \
     xvfb \
