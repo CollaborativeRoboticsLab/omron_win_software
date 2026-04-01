@@ -7,12 +7,17 @@ The project builds two separate images:
 - `ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner`
 - `ghcr.io/collaborativeroboticslab/omron_win_software-tmflow`
 
-## Available Software Versions
+## Image Tags
 
-| Software | Version | Source |
-|----------|---------|--------|
-| MobilePlanner | ![MobilePlanner 8.1.9](https://img.shields.io/badge/MobilePlanner-8.1.9-0a7bbb) | Local `exe/MobilePlanner_8.1.9.exe` |
-| TMFlow | ![TMFlow 2.22.4200](https://img.shields.io/badge/TMFlow-2.22.4200-2f855a) | Remote archive `V2.22.4200.zip` |
+Current image tags by software version:
+
+- `ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest`
+- `ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:mobileplanner_8.1.9`
+- `ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest`
+- `ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:v2.22.4200`
+
+The MobilePlanner version tag is derived from the local file `exe/MobilePlanner_8.1.9.exe`.
+The TMFlow version tag is currently derived from the configured remote archive name `V2.22.4200.zip` until a local `TMFlow*.exe` is added.
 
 Each image defaults to its own launcher, and the launcher searches `/opt/omron/exe` for the first matching executable and runs it through Wine.
 

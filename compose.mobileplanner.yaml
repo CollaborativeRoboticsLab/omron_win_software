@@ -1,0 +1,9 @@
+services:
+  mobileplanner:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        DEFAULT_APP: MobilePlanner
+    image: ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest
+    network_mode: host
