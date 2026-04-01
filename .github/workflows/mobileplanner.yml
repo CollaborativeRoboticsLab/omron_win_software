@@ -1,0 +1,92 @@
+name: Build MobilePlanner Image
+
+on:
+  workflow_dispatch:
+
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  OWNER: collaborativeroboticslab
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-mobileplanner-image:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: Derive MobilePlanner tag
+        id: version
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          sanitize_tag() {
+            local value="$1"
+            value="${value%.exe}"
+            value="${value// /-}"
+            value="$(printf '%s' "$value" | tr '[:upper:]' '[:lower:]')"
+            value="$(printf '%s' "$value" | sed -E 's/[^a-z0-9._-]+/-/g; s/^-+//; s/-+$//; s/-+/-/g')"
+            printf '%s' "$value"
+          }
+
+          mobile_file="$(find exe -maxdepth 1 -type f -iname 'MobilePlanner*.exe' | sort | head -n 1 || true)"
+          mobile_tag="latest"
+
+          if [[ -n "$mobile_file" ]]; then
+            mobile_tag="$(sanitize_tag "$(basename "$mobile_file")")"
+          fi
+
+          echo "mobile_tag=$mobile_tag" >> "$GITHUB_OUTPUT"
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GH_PAT }}
+
+      - name: Extract Docker metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.OWNER }}/omron_win_software-mobileplanner
+          tags: |
+            type=raw,value=latest,enable={{is_default_branch}}
+            type=sha
+            type=raw,value=${{ steps.version.outputs.mobile_tag }}
+
+      - name: Build and Push MobilePlanner Image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          file: ./Dockerfile.mobileplanner
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}

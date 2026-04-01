@@ -1,9 +1,23 @@
 services:
   mobileplanner:
+    container_name: mobileplanner
     build:
       context: .
-      dockerfile: Dockerfile
-      args:
-        DEFAULT_APP: MobilePlanner
+      dockerfile: Dockerfile.mobileplanner
     image: ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest
+    restart: unless-stopped
+    privileged: true
     network_mode: host
+    environment:
+      DISPLAY: ${DISPLAY:?DISPLAY must be set}
+      XAUTHORITY: /root/.Xauthority
+      WINEPREFIX: /wine
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - /dev:/dev
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - mobileplanner-wine:/wine
+
+volumes:
+  mobileplanner-wine:

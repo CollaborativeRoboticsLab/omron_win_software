@@ -1,10 +1,25 @@
 services:
   tmflow:
+    container_name: tmflow
     build:
       context: .
-      dockerfile: Dockerfile
+      dockerfile: Dockerfile.tmflow
       args:
-        DEFAULT_APP: TMFlow
         TMFLOW_URL: ${TMFLOW_URL:-}
     image: ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest
+    restart: unless-stopped
+    privileged: true
     network_mode: host
+    environment:
+      DISPLAY: ${DISPLAY:?DISPLAY must be set}
+      XAUTHORITY: /root/.Xauthority
+      WINEPREFIX: /wine
+      QT_X11_NO_MITSHM: "1"
+    volumes:
+      - /dev:/dev
+      - ${HOME}/.Xauthority:/root/.Xauthority:ro
+      - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - tmflow-wine:/wine
+
+volumes:
+  tmflow-wine:

@@ -20,11 +20,11 @@ Each image defaults to its own launcher, and the launcher searches `/opt/omron/e
 
 ```sh
 docker build \
-	--build-arg DEFAULT_APP=MobilePlanner \
+	-f Dockerfile.mobileplanner \
 	-t ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest .
 
 docker build \
-	--build-arg DEFAULT_APP=TMFlow \
+	-f Dockerfile.tmflow \
 	--build-arg TMFLOW_URL='https://example.invalid/TMFlow.zip' \
 	-t ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest .
 ```
@@ -34,14 +34,18 @@ docker build \
 Start MobilePlanner:
 
 ```sh
+xhost +local:docker
 docker compose -f compose.mobileplanner.yaml up
 ```
 
 Start TMFlow:
 
 ```sh
+xhost +local:docker
 TMFLOW_URL='https://example.invalid/TMFlow.zip' docker compose -f compose.tmflow.yaml up
 ```
+
+The compose files mount the host X11 socket from `/tmp/.X11-unix`, pass through `DISPLAY`, mount `${HOME}/.Xauthority` into the container, and persist the Wine prefix in a named Docker volume.
 
 ## Remote TMFlow Download
 
@@ -51,7 +55,7 @@ The Docker build supports an optional `TMFLOW_URL` build argument. When provided
 
 ```sh
 docker build \
-	--build-arg DEFAULT_APP=TMFlow \
+	-f Dockerfile.tmflow \
 	--build-arg TMFLOW_URL='https://example.invalid/TMFlow.zip' \
 	-t ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest .
 ```

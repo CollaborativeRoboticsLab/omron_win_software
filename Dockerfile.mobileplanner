@@ -1,0 +1,35 @@
+FROM ubuntu:24.04
+
+ENV DEBIAN_FRONTEND=noninteractive \
+    WINEPREFIX=/wine \
+    WINEDEBUG=-all \
+    WINEDLLOVERRIDES=mscoree,mshtml=
+
+RUN dpkg --add-architecture i386 \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends \
+    ca-certificates \
+    cabextract \
+    curl \
+    tini \
+    unzip \
+    wine32 \
+    wine64 \
+    winbind \
+    xauth \
+    xvfb \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/omron
+
+COPY exe/ /opt/omron/exe/
+COPY scripts/run-mobileplanner.sh /usr/local/bin/MobilePlanner
+
+RUN chmod +x /usr/local/bin/MobilePlanner \
+    && mkdir -p "$WINEPREFIX" \
+    && xvfb-run -a wineboot --init \
+    && wineserver -w
+
+ENTRYPOINT ["tini", "--"]
+CMD ["/usr/local/bin/MobilePlanner"]
+
