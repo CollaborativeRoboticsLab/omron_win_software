@@ -3,6 +3,14 @@ name: Build TMFlow Image
 on:
   workflow_dispatch:
 
+  push:
+    branches:
+      - main
+
+  pull_request:
+    branches:
+      - main
+
 env:
   REGISTRY: ghcr.io
   OWNER: collaborativeroboticslab
