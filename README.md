@@ -18,7 +18,7 @@ Each image defaults to its own launcher, and the launcher searches `/opt/omron/e
 
 For MobilePlanner, the first run may open the installer from `exe/`. After installation completes, later runs launch the installed application from the persistent Wine prefix automatically.
 
-For TMFlow, the first run may open either `TMFlow*.exe` or `TMSetup*.exe`, depending on what was packaged into the image. Before that happens, the launcher bootstraps `.NET Framework 4.8` into the persistent Wine prefix because TMFlow requires `.NET Framework 4.5.2` or newer. The current packaged media is `TMSetup64.exe`, so TMFlow now uses a 64-bit Wine prefix. After installation completes, later runs launch the installed `TMFlow.exe` from the persistent Wine prefix automatically.
+For TMFlow, the first run may open either `TMFlow*.exe` or `TMSetup*.exe`, depending on what was packaged into the image. Before that happens, the launcher bootstraps `.NET Framework 4.8` into the persistent Wine prefix because the installer requires `.NET Framework 4.5.2` or newer. After installation, the launcher also installs the Windows `.NET 6 x64` runtimes that TMFlow declares in `TMflow.runtimeconfig.json`: `Microsoft.NETCore.App`, `Microsoft.WindowsDesktop.App`, and `Microsoft.AspNetCore.App`. The current packaged media is `TMSetup64.exe`, so TMFlow now uses a 64-bit Wine prefix. After installation completes, later runs launch the installed `TMFlow.exe` from the persistent Wine prefix automatically.
 
 ## Run With Compose
 

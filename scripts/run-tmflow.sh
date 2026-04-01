@@ -3,6 +3,10 @@ set -eu
 
 bootstrap_dir="${WINEPREFIX:-/wine}/.omron-bootstrap"
 dotnet_marker="$bootstrap_dir/dotnet48"
+dotnet6_marker="$bootstrap_dir/dotnet6-runtime"
+dotnet6_version="6.0.36"
+aspnetcore_runtime_url="https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/${dotnet6_version}/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
+windowsdesktop_runtime_url="https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/${dotnet6_version}/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
 
 prefix_is_initialized() {
     [ -f "${WINEPREFIX:-/wine}/system.reg" ] || [ -f "${WINEPREFIX:-/wine}/user.reg" ]
@@ -40,6 +44,23 @@ run_with_display() {
     xvfb-run -a "$@"
 }
 
+download_file() {
+    url="$1"
+    destination="$2"
+
+    if [ -f "$destination" ]; then
+        return
+    fi
+
+    curl -fL "$url" -o "$destination"
+}
+
+install_windows_runtime() {
+    installer_path="$1"
+
+    run_with_display "$wine_cmd" "$installer_path" /install /quiet /norestart
+}
+
 ensure_tmflow_prereqs() {
     if prefix_is_initialized && ! prefix_is_win64; then
         echo "TMFlow now requires a 64-bit Wine prefix because the packaged installer is TMSetup64.exe" >&2
@@ -49,10 +70,6 @@ ensure_tmflow_prereqs() {
         exit 65
     fi
 
-    if [ -f "$dotnet_marker" ]; then
-        return
-    fi
-
     if ! command -v winetricks >/dev/null 2>&1; then
         echo "winetricks is required to install .NET Framework for TMFlow" >&2
         exit 127
@@ -60,13 +77,36 @@ ensure_tmflow_prereqs() {
 
     mkdir -p "$bootstrap_dir"
 
-    echo "Preparing Wine prefix for TMFlow" >&2
-    run_with_display wineboot -u
+    if ! prefix_is_initialized; then
+        echo "Preparing Wine prefix for TMFlow" >&2
+        run_with_display wineboot -u
+    fi
 
-    echo "Installing .NET Framework 4.8 for TMFlow; this can take several minutes on first run" >&2
-    run_with_display winetricks -q dotnet48
+    if [ ! -f "$dotnet_marker" ]; then
+        echo "Installing .NET Framework 4.8 for TMFlow; this can take several minutes on first run" >&2
+        run_with_display winetricks -q dotnet48
 
-    touch "$dotnet_marker"
+        touch "$dotnet_marker"
+    fi
+
+    if [ -f "$dotnet6_marker" ]; then
+        return
+    fi
+
+    aspnetcore_installer="$bootstrap_dir/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
+    windowsdesktop_installer="$bootstrap_dir/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
+
+    echo "Downloading .NET 6 x64 runtimes required by installed TMFlow" >&2
+    download_file "$aspnetcore_runtime_url" "$aspnetcore_installer"
+    download_file "$windowsdesktop_runtime_url" "$windowsdesktop_installer"
+
+    echo "Installing ASP.NET Core Runtime ${dotnet6_version} for TMFlow" >&2
+    install_windows_runtime "$aspnetcore_installer"
+
+    echo "Installing Windows Desktop Runtime ${dotnet6_version} for TMFlow" >&2
+    install_windows_runtime "$windowsdesktop_installer"
+
+    touch "$dotnet6_marker"
 }
 
 resolve_app_path() {
