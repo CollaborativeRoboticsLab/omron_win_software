@@ -4,6 +4,7 @@ set -eu
 bootstrap_dir="${WINEPREFIX:-/wine}/.omron-bootstrap"
 dotnet_marker="$bootstrap_dir/dotnet48"
 dotnet6_marker="$bootstrap_dir/dotnet6-runtime"
+ui_marker="$bootstrap_dir/ui-runtime"
 dotnet6_version="6.0.36"
 aspnetcore_runtime_url="https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/${dotnet6_version}/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
 windowsdesktop_runtime_url="https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/${dotnet6_version}/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
