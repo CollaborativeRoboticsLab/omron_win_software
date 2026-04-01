@@ -37,4 +37,10 @@ echo "Launching TMFlow with executable: $app_path" >&2
 echo "Using Wine command: $wine_cmd" >&2
 echo "DISPLAY=${DISPLAY:-unset} WINEPREFIX=${WINEPREFIX:-unset}" >&2
 
+if [ -n "${DISPLAY:-}" ] && [ -d /tmp/.X11-unix ]; then
+    echo "Using host X11 display: $DISPLAY" >&2
+    exec "$wine_cmd" "$app_path" "$@"
+fi
+
+echo "Host X11 display unavailable; falling back to xvfb-run" >&2
 exec xvfb-run -a "$wine_cmd" "$app_path" "$@"
