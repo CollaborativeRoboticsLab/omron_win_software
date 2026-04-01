@@ -16,6 +16,8 @@ The project builds two separate images:
 
 Each image defaults to its own launcher, and the launcher searches `/opt/omron/exe` for the first matching executable and runs it through Wine. When `DISPLAY` and the X11 socket are available, the launcher uses the host X server; otherwise it falls back to an internal Xvfb display.
 
+For MobilePlanner, the first run may open the installer from `exe/`. After installation completes, later runs launch the installed application from the persistent Wine prefix automatically.
+
 ## Run With Compose
 
 The compose files are runtime-only and pull the published GHCR images. They do not build local images.
@@ -39,6 +41,13 @@ docker compose -f compose.tmflow.yaml up
 The compose files mount the host X11 socket from `/tmp/.X11-unix`, pass through `DISPLAY`, mount `${HOME}/.Xauthority` into the container, and persist the Wine prefix in a named Docker volume.
 
 When you run `docker compose up`, the command stays attached to the GUI process by design. A successful start should now print `Using host X11 display: ...` before the application window appears on the host desktop.
+
+If you need to reset MobilePlanner and rerun the installer from scratch, remove the named Docker volume for its Wine prefix:
+
+```sh
+docker compose -f compose.mobileplanner.yaml down
+docker volume rm omron_win_software_mobileplanner-wine
+```
 
 ## TMFlow Source
 

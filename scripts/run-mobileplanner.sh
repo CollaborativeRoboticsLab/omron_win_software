@@ -20,16 +20,37 @@ resolve_wine() {
     exit 127
 }
 
-app_path="$(find /opt/omron/exe -type f -iname 'MobilePlanner*.exe' | sort | head -n 1)"
+resolve_app_path() {
+    for candidate in \
+        "/wine/drive_c/Program Files/Omron/MobilePlanner 8.1/bin/MobilePlanner.exe" \
+        "/wine/drive_c/Program Files (x86)/Omron/MobilePlanner 8.1/bin/MobilePlanner.exe"
+    do
+        if [ -f "$candidate" ]; then
+            printf '%s\n' "$candidate"
+            return 0
+        fi
+    done
+
+    find /wine/drive_c -type f -iname 'MobilePlanner.exe' 2>/dev/null | sort | head -n 1
+}
+
+app_path="$(resolve_app_path)"
+
+if [ -n "$app_path" ]; then
+    launch_mode="installed application"
+else
+    app_path="$(find /opt/omron/exe -type f -iname 'MobilePlanner*.exe' | sort | head -n 1)"
+    launch_mode="setup executable"
+fi
 
 if [ -z "$app_path" ]; then
-    echo "No executable matching MobilePlanner*.exe was found in /opt/omron/exe" >&2
+    echo "No installed MobilePlanner executable or setup EXE was found" >&2
     exit 66
 fi
 
 wine_cmd="$(resolve_wine)"
 
-echo "Launching MobilePlanner with executable: $app_path" >&2
+echo "Launching MobilePlanner ($launch_mode): $app_path" >&2
 echo "Using Wine command: $wine_cmd" >&2
 echo "DISPLAY=${DISPLAY:-unset} WINEPREFIX=${WINEPREFIX:-unset}" >&2
 
