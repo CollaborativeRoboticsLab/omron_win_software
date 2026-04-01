@@ -61,6 +61,17 @@ install_windows_runtime() {
     run_with_display "$wine_cmd" "$installer_path" /install /quiet /norestart
 }
 
+ensure_tmflow_ui_prereqs() {
+    if [ -f "$ui_marker" ]; then
+        return
+    fi
+
+    echo "Installing Windows fonts and UI rendering fixes for TMFlow" >&2
+    run_with_display winetricks -q corefonts tahoma gdiplus fontsmooth=rgb renderer=gdi
+
+    touch "$ui_marker"
+}
+
 ensure_tmflow_prereqs() {
     if prefix_is_initialized && ! prefix_is_win64; then
         echo "TMFlow now requires a 64-bit Wine prefix because the packaged installer is TMSetup64.exe" >&2
@@ -89,24 +100,24 @@ ensure_tmflow_prereqs() {
         touch "$dotnet_marker"
     fi
 
-    if [ -f "$dotnet6_marker" ]; then
-        return
+    if [ ! -f "$dotnet6_marker" ]; then
+        aspnetcore_installer="$bootstrap_dir/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
+        windowsdesktop_installer="$bootstrap_dir/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
+
+        echo "Downloading .NET 6 x64 runtimes required by installed TMFlow" >&2
+        download_file "$aspnetcore_runtime_url" "$aspnetcore_installer"
+        download_file "$windowsdesktop_runtime_url" "$windowsdesktop_installer"
+
+        echo "Installing ASP.NET Core Runtime ${dotnet6_version} for TMFlow" >&2
+        install_windows_runtime "$aspnetcore_installer"
+
+        echo "Installing Windows Desktop Runtime ${dotnet6_version} for TMFlow" >&2
+        install_windows_runtime "$windowsdesktop_installer"
+
+        touch "$dotnet6_marker"
     fi
 
-    aspnetcore_installer="$bootstrap_dir/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
-    windowsdesktop_installer="$bootstrap_dir/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
-
-    echo "Downloading .NET 6 x64 runtimes required by installed TMFlow" >&2
-    download_file "$aspnetcore_runtime_url" "$aspnetcore_installer"
-    download_file "$windowsdesktop_runtime_url" "$windowsdesktop_installer"
-
-    echo "Installing ASP.NET Core Runtime ${dotnet6_version} for TMFlow" >&2
-    install_windows_runtime "$aspnetcore_installer"
-
-    echo "Installing Windows Desktop Runtime ${dotnet6_version} for TMFlow" >&2
-    install_windows_runtime "$windowsdesktop_installer"
-
-    touch "$dotnet6_marker"
+    ensure_tmflow_ui_prereqs
 }
 
 resolve_app_path() {
