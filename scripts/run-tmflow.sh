@@ -68,7 +68,7 @@ ensure_tmflow_ui_prereqs() {
     fi
 
     echo "Installing Windows fonts and UI rendering fixes for TMFlow" >&2
-    run_with_display winetricks -q corefonts tahoma gdiplus fontsmooth=rgb renderer=gdi
+    run_with_display winetricks -q corefonts tahoma fontsmooth=rgb renderer=gdi
 
     touch "$ui_marker"
 }
