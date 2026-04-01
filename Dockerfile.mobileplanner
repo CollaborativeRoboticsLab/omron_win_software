@@ -26,9 +26,7 @@ COPY exe/ /opt/omron/exe/
 COPY scripts/run-mobileplanner.sh /usr/local/bin/MobilePlanner
 
 RUN chmod +x /usr/local/bin/MobilePlanner \
-    && mkdir -p "$WINEPREFIX" \
-    && xvfb-run -a wineboot --init \
-    && wineserver -w
+    && mkdir -p "$WINEPREFIX"
 
 ENTRYPOINT ["tini", "--"]
 CMD ["/usr/local/bin/MobilePlanner"]

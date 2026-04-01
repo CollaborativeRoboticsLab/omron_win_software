@@ -34,9 +34,7 @@ RUN if [ -n "$TMFLOW_URL" ]; then \
         && rm -rf /tmp/tmflow; \
     fi \
     && chmod +x /usr/local/bin/TMFlow \
-    && mkdir -p "$WINEPREFIX" \
-    && xvfb-run -a wineboot --init \
-    && wineserver -w
+    && mkdir -p "$WINEPREFIX"
 
 ENTRYPOINT ["tini", "--"]
 CMD ["/usr/local/bin/TMFlow"]
