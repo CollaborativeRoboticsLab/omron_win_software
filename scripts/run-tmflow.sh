@@ -4,6 +4,14 @@ set -eu
 bootstrap_dir="${WINEPREFIX:-/wine}/.omron-bootstrap"
 dotnet_marker="$bootstrap_dir/dotnet48"
 
+prefix_is_initialized() {
+    [ -f "${WINEPREFIX:-/wine}/system.reg" ] || [ -f "${WINEPREFIX:-/wine}/user.reg" ]
+}
+
+prefix_is_win64() {
+    [ -d "${WINEPREFIX:-/wine}/drive_c/windows/syswow64" ]
+}
+
 resolve_wine() {
     for candidate in \
         "$(command -v wine 2>/dev/null || true)" \
@@ -33,6 +41,14 @@ run_with_display() {
 }
 
 ensure_tmflow_prereqs() {
+    if prefix_is_initialized && ! prefix_is_win64; then
+        echo "TMFlow now requires a 64-bit Wine prefix because the packaged installer is TMSetup64.exe" >&2
+        echo "Remove the old TMFlow Wine volume and try again:" >&2
+        echo "  docker compose -f compose.tmflow.yaml down" >&2
+        echo "  docker volume rm omron_win_software_tmflow-wine" >&2
+        exit 65
+    fi
+
     if [ -f "$dotnet_marker" ]; then
         return
     fi

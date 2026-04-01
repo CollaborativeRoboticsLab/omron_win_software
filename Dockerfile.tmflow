@@ -3,7 +3,7 @@ FROM ubuntu:24.04
 ARG TMFLOW_URL=""
 
 ENV DEBIAN_FRONTEND=noninteractive \
-    WINEARCH=win32 \
+    WINEARCH=win64 \
     WINEPREFIX=/wine \
     WINEDEBUG=-all \
     WINEDLLOVERRIDES=mscoree,mshtml=
