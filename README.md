@@ -34,14 +34,14 @@ docker build \
 Start MobilePlanner:
 
 ```sh
-xhost +local:docker
+xhost +local:root
 docker compose -f compose.mobileplanner.yaml up
 ```
 
 Start TMFlow:
 
 ```sh
-xhost +local:docker
+xhost +local:root
 TMFLOW_URL='https://example.invalid/TMFlow.zip' docker compose -f compose.tmflow.yaml up
 ```
 

@@ -23,10 +23,18 @@ resolve_wine() {
 app_path="$(find /opt/omron/exe -type f -iname 'TMFlow*.exe' | sort | head -n 1)"
 
 if [ -z "$app_path" ]; then
-    echo "No executable matching TMFlow*.exe was found in /opt/omron/exe" >&2
+    app_path="$(find /opt/omron/exe -type f -iname 'TMSetup*.exe' | sort | head -n 1)"
+fi
+
+if [ -z "$app_path" ]; then
+    echo "No executable matching TMFlow*.exe or TMSetup*.exe was found in /opt/omron/exe" >&2
     exit 66
 fi
 
 wine_cmd="$(resolve_wine)"
+
+echo "Launching TMFlow with executable: $app_path" >&2
+echo "Using Wine command: $wine_cmd" >&2
+echo "DISPLAY=${DISPLAY:-unset} WINEPREFIX=${WINEPREFIX:-unset}" >&2
 
 exec xvfb-run -a "$wine_cmd" "$app_path" "$@"

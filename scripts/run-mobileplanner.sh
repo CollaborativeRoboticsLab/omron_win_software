@@ -29,4 +29,8 @@ fi
 
 wine_cmd="$(resolve_wine)"
 
+echo "Launching MobilePlanner with executable: $app_path" >&2
+echo "Using Wine command: $wine_cmd" >&2
+echo "DISPLAY=${DISPLAY:-unset} WINEPREFIX=${WINEPREFIX:-unset}" >&2
+
 exec xvfb-run -a "$wine_cmd" "$app_path" "$@"

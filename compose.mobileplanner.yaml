@@ -5,7 +5,6 @@ services:
       context: .
       dockerfile: Dockerfile.mobileplanner
     image: ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest
-    restart: unless-stopped
     privileged: true
     network_mode: host
     environment:

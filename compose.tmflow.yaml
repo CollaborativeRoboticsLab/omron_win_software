@@ -7,7 +7,6 @@ services:
       args:
         TMFLOW_URL: ${TMFLOW_URL:-}
     image: ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest
-    restart: unless-stopped
     privileged: true
     network_mode: host
     environment:
