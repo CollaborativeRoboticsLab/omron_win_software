@@ -2,7 +2,6 @@ services:
   tmflow:
     container_name: tmflow
     image: ghcr.io/collaborativeroboticslab/omron_win_software-tmflow:latest
-    pull_policy: always
     privileged: true
     network_mode: host
     environment:

@@ -2,7 +2,6 @@ services:
   mobileplanner:
     container_name: mobileplanner
     image: ghcr.io/collaborativeroboticslab/omron_win_software-mobileplanner:latest
-    pull_policy: always
     privileged: true
     network_mode: host
     environment:
