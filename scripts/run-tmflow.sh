@@ -6,6 +6,7 @@ dotnet_marker="$bootstrap_dir/dotnet48"
 dotnet6_marker="$bootstrap_dir/dotnet6-runtime"
 ui_marker="$bootstrap_dir/ui-runtime"
 x11_driver_marker="$bootstrap_dir/x11-driver-runtime"
+qt_style_marker="$bootstrap_dir/qt-style-runtime"
 dotnet6_version="6.0.36"
 aspnetcore_runtime_url="https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/${dotnet6_version}/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
 windowsdesktop_runtime_url="https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/${dotnet6_version}/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
@@ -74,6 +75,31 @@ configure_wine_x11_driver() {
     touch "$x11_driver_marker"
 }
 
+disable_tmflow_qt_vista_style() {
+    if [ -f "$qt_style_marker" ]; then
+        return
+    fi
+
+    install_dir="$(dirname "$app_path")"
+    disabled_any=0
+
+    for plugin_path in \
+        "$install_dir/Vision/styles/qwindowsvistastyle.dll" \
+        "$install_dir/Vision/Client/styles/qwindowsvistastyle.dll"
+    do
+        if [ -f "$plugin_path" ] && [ ! -f "$plugin_path.disabled" ]; then
+            mv "$plugin_path" "$plugin_path.disabled"
+            disabled_any=1
+        fi
+    done
+
+    if [ "$disabled_any" -eq 1 ]; then
+        echo "Disabling bundled Qt Windows Vista style plugin for TMFlow vision tools compatibility" >&2
+    fi
+
+    touch "$qt_style_marker"
+}
+
 ensure_tmflow_ui_prereqs() {
     if [ -f "$ui_marker" ]; then
         return
@@ -131,6 +157,11 @@ ensure_tmflow_prereqs() {
     fi
 
     configure_wine_x11_driver
+
+    if [ "$launch_mode" = "installed application" ]; then
+        disable_tmflow_qt_vista_style
+    fi
+
     ensure_tmflow_ui_prereqs
 }
 

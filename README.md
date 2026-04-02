@@ -44,6 +44,8 @@ The compose files mount the host X11 socket from `/tmp/.X11-unix`, pass through 
 
 When you run `docker compose up`, the command stays attached to the GUI process by design. A successful start should now print `Using host X11 display: ...` before the application window appears on the host desktop. The TMFlow launcher also writes `ClientSideGraphics=N` to `HKCU\Software\Wine\X11 Driver` to avoid a Wine/X11 client-side rendering path that can crash on containerized X11 sessions with `X_ShmPutImage BadValue`.
 
+For installed TMFlow builds, the launcher also disables the bundled `Vision/styles/qwindowsvistastyle.dll` plugin variants inside the Wine prefix. TMFlow's `QSI_VisionTools.exe` path can crash inside `qwindowsvistastyle` under Wine even after the X11 transport issue is fixed, so the launcher renames those plugin DLLs to `.disabled` before launch.
+
 If you need to reset MobilePlanner and rerun the installer from scratch, remove the named Docker volume for its Wine prefix:
 
 ```sh
