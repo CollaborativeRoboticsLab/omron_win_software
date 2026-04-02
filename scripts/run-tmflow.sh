@@ -5,6 +5,7 @@ bootstrap_dir="${WINEPREFIX:-/wine}/.omron-bootstrap"
 dotnet_marker="$bootstrap_dir/dotnet48"
 dotnet6_marker="$bootstrap_dir/dotnet6-runtime"
 ui_marker="$bootstrap_dir/ui-runtime"
+x11_driver_marker="$bootstrap_dir/x11-driver-runtime"
 dotnet6_version="6.0.36"
 aspnetcore_runtime_url="https://builds.dotnet.microsoft.com/dotnet/aspnetcore/Runtime/${dotnet6_version}/aspnetcore-runtime-${dotnet6_version}-win-x64.exe"
 windowsdesktop_runtime_url="https://builds.dotnet.microsoft.com/dotnet/WindowsDesktop/${dotnet6_version}/windowsdesktop-runtime-${dotnet6_version}-win-x64.exe"
@@ -60,6 +61,17 @@ install_windows_runtime() {
     installer_path="$1"
 
     run_with_display "$wine_cmd" "$installer_path" /install /quiet /norestart
+}
+
+configure_wine_x11_driver() {
+    if [ -f "$x11_driver_marker" ]; then
+        return
+    fi
+
+    echo "Configuring Wine X11 driver for TMFlow host-display compatibility" >&2
+    wine reg add 'HKCU\Software\Wine\X11 Driver' /v ClientSideGraphics /t REG_SZ /d N /f >/dev/null
+
+    touch "$x11_driver_marker"
 }
 
 ensure_tmflow_ui_prereqs() {
@@ -118,6 +130,7 @@ ensure_tmflow_prereqs() {
         touch "$dotnet6_marker"
     fi
 
+    configure_wine_x11_driver
     ensure_tmflow_ui_prereqs
 }
 

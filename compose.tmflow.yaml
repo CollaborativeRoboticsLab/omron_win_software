@@ -14,6 +14,7 @@ services:
       - /dev:/dev
       - ${HOME}/.Xauthority:/root/.Xauthority:ro
       - /tmp/.X11-unix:/tmp/.X11-unix:rw
+      - ./scripts/run-tmflow.sh:/usr/local/bin/TMFlow:ro
       - tmflow-wine:/wine
 
 volumes:

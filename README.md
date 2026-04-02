@@ -40,9 +40,9 @@ docker compose -f compose.tmflow.yaml pull
 docker compose -f compose.tmflow.yaml up
 ```
 
-The compose files mount the host X11 socket from `/tmp/.X11-unix`, pass through `DISPLAY`, mount `${HOME}/.Xauthority` into the container, and persist the Wine prefix in a named Docker volume.
+The compose files mount the host X11 socket from `/tmp/.X11-unix`, pass through `DISPLAY`, mount `${HOME}/.Xauthority` into the container, and persist the Wine prefix in a named Docker volume. The TMFlow compose file also bind-mounts the local launcher script so display-handling fixes can be tested without rebuilding the published image.
 
-When you run `docker compose up`, the command stays attached to the GUI process by design. A successful start should now print `Using host X11 display: ...` before the application window appears on the host desktop.
+When you run `docker compose up`, the command stays attached to the GUI process by design. A successful start should now print `Using host X11 display: ...` before the application window appears on the host desktop. The TMFlow launcher also writes `ClientSideGraphics=N` to `HKCU\Software\Wine\X11 Driver` to avoid a Wine/X11 client-side rendering path that can crash on containerized X11 sessions with `X_ShmPutImage BadValue`.
 
 If you need to reset MobilePlanner and rerun the installer from scratch, remove the named Docker volume for its Wine prefix:
 
